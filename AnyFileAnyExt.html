@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to File Downloader</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(1200px 700px at 20% 10%, #e8f2ff 0%, rgba(232, 242, 255, 0) 60%),
+                        radial-gradient(1200px 700px at 80% 30%, #f3e8ff 0%, rgba(243, 232, 255, 0) 60%),
+                        #f6f7fb;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #0f172a;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.75);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 18px 55px rgba(15, 23, 42, 0.10);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: none; /* Let the textarea use the full page width */
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 220px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="text"]:focus {
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .quick-ext {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chip {
+            appearance: none;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.05s ease, background-color 0.2s ease, border-color 0.2s ease;
+            width: auto;
+        }
+
+        .chip:hover {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .chip:active {
+            transform: translateY(1px);
+        }
+
+        textarea {
+            width: 100%;
+            height: min(70vh, 650px);
+            min-height: 380px;
+            padding: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            border-radius: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.45;
+            resize: vertical;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+            margin-bottom: 1rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        textarea:focus {
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        button.primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: filter 0.2s, transform 0.05s;
+        }
+
+        button.primary:hover {
+            filter: brightness(1.03);
+        }
+
+        button.primary:active {
+            transform: translateY(1px);
+        }
+
+        .hint {
+            margin: 0.25rem 0 0;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 720px) {
+            .container { padding: 1.1rem; }
+            textarea { min-height: 320px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Text File Generator</h2>
+    
+    <div class="controls">
+        <div class="input-group">
+            <label for="filename">File Name</label>
+            <input type="text" id="filename" placeholder="e.g. my-script" value="download">
+            <p class="hint">Example: <code>notes</code> + <code>.txt</code> → <code>notes.txt</code></p>
+        </div>
+        <div class="input-group">
+            <label for="extension">Extension</label>
+            <input type="text" id="extension" placeholder="e.g. .txt" value=".txt">
+            <div class="quick-ext" aria-label="Common extensions">
+                <button class="chip" type="button" onclick="setExtension('.txt')">.txt</button>
+                <button class="chip" type="button" onclick="setExtension('.html')">.html</button>
+                <button class="chip" type="button" onclick="setExtension('.js')">.js</button>
+                <button class="chip" type="button" onclick="setExtension('.json')">.json</button>
+                <button class="chip" type="button" onclick="setExtension('.c')">.c</button>
+                <button class="chip" type="button" onclick="setExtension('.css')">.css</button>
+                <button class="chip" type="button" onclick="setExtension('.tex')">.tex</button>
+                <button class="chip" type="button" onclick="setExtension('.cpp')">.cpp</button>
+            </div>
+        </div>
+    </div>
+
+    <textarea id="content" placeholder="Paste your text here..."></textarea>
+
+    <button class="primary" onclick="downloadFile()">Download File</button>
+</div>
+
+<script>
+    function setExtension(ext) {
+        const extensionEl = document.getElementById('extension');
+        const normalized = ext && !ext.startsWith('.') ? `.${ext}` : ext;
+        extensionEl.value = normalized || '.txt';
+        extensionEl.focus();
+        extensionEl.setSelectionRange(extensionEl.value.length, extensionEl.value.length);
+    }
+
+    function downloadFile() {
+        // 1. Get the values from the inputs
+        const content = document.getElementById('content').value;
+        let filename = document.getElementById('filename').value;
+        let extension = document.getElementById('extension').value;
+
+        // 2. Safety checks
+        if (!content) {
+            alert("Please enter some text content first.");
+            return;
+        }
+        if (!filename) {
+            filename = "download";
+        }
+        
+        // Ensure extension starts with a dot if the user forgot it
+        if (extension && !extension.startsWith('.')) {
+            extension = '.' + extension;
+        }
+        // If extension is empty, default to .txt
+        if (!extension) {
+            extension = '.txt';
+        }
+
+        const fullFileName = filename + extension;
+
+        // 3. Create a Blob (Binary Large Object)
+        const blob = new Blob([content], { type: 'text/plain' });
+
+        // 4. Create a temporary link element to trigger the download
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fullFileName;
+
+        // 5. Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
